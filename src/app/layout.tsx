@@ -1,18 +1,25 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Inter } from "next/font/google";
+import {
+  Manrope,
+  Cormorant_Garamond,
+  Playfair_Display,
+} from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const cormorantGaramond = Cormorant_Garamond({
   subsets: ["latin"],
+  variable: "--font-cormorant",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const manrope = Manrope({
   subsets: ["latin"],
+  variable: "--font-manrope",
+});
+
+const playfairDisplay = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-playfair-display",
 });
 
 export const metadata: Metadata = {
@@ -26,13 +33,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      suppressHydrationWarning
-      className={cn("font-sans", inter.variable)}
-    >
+    <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={cn(
+          "antialiased font-sans",
+          manrope.variable,
+          cormorantGaramond.variable,
+          playfairDisplay.variable,
+        )}
       >
         {children}
       </body>

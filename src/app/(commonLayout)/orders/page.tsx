@@ -1,7 +1,11 @@
-import React from "react";
+import CustomerOrderView from "@/components/modules/CustomerOrder/CustomerOrderView";
 
 const CustomerOrderPage = () => {
-  return <div>Customer OrderPage</div>;
+  return (
+    <div>
+      <CustomerOrderView />
+    </div>
+  );
 };
 
 export default CustomerOrderPage;
