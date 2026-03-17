@@ -40,7 +40,7 @@ export const OrderProgressTracker = ({ status }: { status: OrderStatus }) => {
               {/* Connector line */}
               {!isLast && (
                 <div
-                  className={`w-4 h-[2px] lg:w-32 mb-5 ${
+                  className={`w-4 h-0.5 lg:w-32 mb-5 ${
                     index < currentIndex ? "bg-primary" : "bg-gray-200"
                   }`}
                 />

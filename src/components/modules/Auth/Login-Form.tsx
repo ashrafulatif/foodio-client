@@ -1,5 +1,6 @@
 "use client";
 
+import { loginUserAction } from "@/actions/auth.action";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -9,21 +10,17 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { useAuth } from "@/context/authContext";
+import { LoginformSchema } from "@/zod/authFormSchema";
 import { useForm } from "@tanstack/react-form";
-import Link from "next/link";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { toast } from "sonner";
-import * as z from "zod";
-
-const formSchema = z.object({
-  email: z.string().email("Please enter a valid email"),
-  password: z.string().min(8, "Password should be at least 8 characters"),
-});
 
 export function LoginForm() {
   const router = useRouter();
   const pathname = usePathname();
+  const { setIsLoggedIn } = useAuth();
   const isRegister = pathname === "/register";
 
   const form = useForm({
@@ -32,13 +29,18 @@ export function LoginForm() {
       password: "",
     },
     validators: {
-      onSubmit: formSchema,
+      onSubmit: LoginformSchema,
     },
     onSubmit: async ({ value }) => {
       const toastId = toast.loading("Signing in...");
       try {
-        // replace with your actual auth call e.g. authClient.signIn.email(value)
-        console.log(value);
+        const res = await loginUserAction(value);
+        // console.log(res);
+        if (res.error) {
+          toast.error(res.error, { id: toastId });
+          return;
+        }
+        setIsLoggedIn(true);
         toast.success("Signed in successfully!", { id: toastId });
         router.push("/");
       } catch {
@@ -62,11 +64,11 @@ export function LoginForm() {
           </div>
 
           {/* Tab Switcher */}
-          <div className="flex items-center bg-[#F2EFE9] rounded-full w-full h-[44px] mb-8 p-1">
+          <div className="flex items-center bg-[#F2EFE9] rounded-full w-full h-11 mb-8 p-1">
             <button
               type="button"
               onClick={() => router.push("/login")}
-              className={`flex-1 text-center text-sm font-medium py-2 rounded-full transition-all duration-200 ${
+              className={`flex-1 text-center text-sm font-medium py-2 rounded-full transition-all duration-200 cursor-pointer ${
                 !isRegister
                   ? "bg-white text-foreground shadow-sm font-semibold"
                   : "text-muted-foreground hover:text-primary"
@@ -77,7 +79,7 @@ export function LoginForm() {
             <button
               type="button"
               onClick={() => router.push("/register")}
-              className={`flex-1 text-center text-sm font-medium py-2 rounded-full transition-all duration-200 ${
+              className={`flex-1 text-center text-sm font-medium py-2 rounded-full transition-all duration-200 cursor-pointer ${
                 isRegister
                   ? "bg-white text-foreground shadow-sm font-semibold"
                   : "text-muted-foreground hover:text-primary"

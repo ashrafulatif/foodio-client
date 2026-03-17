@@ -1,145 +1,94 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { Search, ListFilter } from "lucide-react";
+import { useTransition } from "react";
+import { Search, ListFilter, Check } from "lucide-react";
+import { useRouter, usePathname } from "next/navigation";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import ItemCard from "@/components/ui/ItemCard";
+import { MenuClientProps, SearchParams } from "@/types";
 
-interface MenuItem {
-  id: number;
-  category: string;
-  name: string;
-  description: string;
-  price: number;
-  image: string;
-}
-
-const categories = ["All", "Starters", "Main Courses", "Desserts"];
-
-const menuItems: MenuItem[] = [
-  {
-    id: 1,
-    category: "Starters",
-    name: "Golden Crunch Bites",
-    description: "Jumbo scallops with cauliflower purée and truffle oil.",
-    price: 15.0,
-    image: "/image1.svg",
-  },
-  {
-    id: 2,
-    category: "Starters",
-    name: "Mediterranean Olive Medley",
-    description: "Jumbo scallops with cauliflower purée and truffle oil.",
-    price: 15.0,
-    image: "/image2.svg",
-  },
-  {
-    id: 3,
-    category: "Starters",
-    name: "Citrus Swirl Delights",
-    description: "Jumbo scallops with cauliflower purée and truffle oil.",
-    price: 15.0,
-    image: "/image3.svg",
-  },
-  {
-    id: 4,
-    category: "Starters",
-    name: "Creamy Garlic Shrimp Pasta",
-    description: "Jumbo scallops with cauliflower purée and truffle oil.",
-    price: 15.0,
-    image: "/image1.svg",
-  },
-  {
-    id: 5,
-    category: "Main Courses",
-    name: "Grilled Salmon Fillet",
-    description: "Fresh Atlantic salmon with lemon butter and seasonal greens.",
-    price: 28.0,
-    image: "/image2.svg",
-  },
-  {
-    id: 6,
-    category: "Main Courses",
-    name: "Beef Tenderloin",
-    description: "Premium cut with roasted vegetables and red wine jus.",
-    price: 42.0,
-    image: "/image3.svg",
-  },
-  {
-    id: 7,
-    category: "Main Courses",
-    name: "Chicken Marsala",
-    description: "Pan-seared chicken with mushroom marsala sauce and pasta.",
-    price: 22.0,
-    image: "/image1.svg",
-  },
-  {
-    id: 8,
-    category: "Main Courses",
-    name: "Lobster Risotto",
-    description: "Creamy arborio rice with fresh lobster and parmesan.",
-    price: 38.0,
-    image: "/image2.svg",
-  },
-  {
-    id: 9,
-    category: "Desserts",
-    name: "Crème Brûlée",
-    description: "Classic French vanilla custard with caramelized sugar crust.",
-    price: 12.0,
-    image: "/image3.svg",
-  },
-  {
-    id: 10,
-    category: "Desserts",
-    name: "Chocolate Lava Cake",
-    description:
-      "Warm chocolate cake with a molten center and vanilla ice cream.",
-    price: 14.0,
-    image: "/image1.svg",
-  },
-  {
-    id: 11,
-    category: "Desserts",
-    name: "Tiramisu",
-    description:
-      "Italian classic with mascarpone, espresso, and cocoa dusting.",
-    price: 11.0,
-    image: "/image2.svg",
-  },
-  {
-    id: 12,
-    category: "Desserts",
-    name: "Mango Panna Cotta",
-    description: "Silky Italian dessert with fresh mango coulis and mint.",
-    price: 10.0,
-    image: "/image3.svg",
-  },
+const SORT_OPTIONS = [
+  { label: "Availability", value: "true" },
+  { label: "Price", value: "price" },
 ];
 
-const MenuView = () => {
-  const [activeCategory, setActiveCategory] = useState("All");
-  const [search, setSearch] = useState("");
+const MenuView = ({
+  categories,
+  initialItems,
+  meta,
+  searchParams,
+}: MenuClientProps) => {
+  const router = useRouter();
+  const pathname = usePathname();
+  const [isPending, startTransition] = useTransition();
 
-  const filtered = useMemo(() => {
-    return menuItems.filter((item) => {
-      const matchesCategory =
-        activeCategory === "All" || item.category === activeCategory;
-      const matchesSearch = item.name
-        .toLowerCase()
-        .includes(search.toLowerCase());
-      return matchesCategory && matchesSearch;
+  const activeCategory = searchParams.category ?? "All";
+  const activeSearch = searchParams.search ?? "";
+  const activeSortBy = searchParams.sortBy ?? "";
+
+  const updateParams = (updates: Partial<SearchParams>) => {
+    const current = new URLSearchParams();
+
+    if (searchParams.search) current.set("search", searchParams.search);
+    if (searchParams.category) current.set("category", searchParams.category);
+    if (searchParams.sortBy) current.set("sortBy", searchParams.sortBy);
+    if (searchParams.page) current.set("page", searchParams.page);
+
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value === undefined || value === "" || value === "All") {
+        current.delete(key);
+      } else {
+        current.set(key, value);
+      }
     });
-  }, [activeCategory, search]);
+
+    if (!("page" in updates)) {
+      current.set("page", "1");
+    }
+
+    startTransition(() => {
+      router.push(`${pathname}?${current.toString()}`);
+    });
+  };
+
+  const handleCategoryChange = (cat: string) => {
+    if (cat === "All") {
+      updateParams({ category: undefined });
+    } else {
+      const found = categories.find((c) => c.name === cat);
+      updateParams({ category: found?.id ?? cat });
+    }
+  };
+
+  const handleSearch = (value: string) => {
+    updateParams({ search: value || undefined });
+  };
+
+  const handleSortChange = (value: string) => {
+    updateParams({ sortBy: activeSortBy === value ? undefined : value });
+  };
+
+  const allCategoryOptions = ["All", ...categories.map((c) => c.name)];
+
+  const activeCategoryName =
+    activeCategory === "All"
+      ? "All"
+      : (categories.find((c) => c.id === activeCategory)?.name ?? "All");
 
   return (
-    <div className="w-full max-w-7xl  mx-auto px-6 py-6">
+    <div className="w-full max-w-7xl mx-auto px-6 py-6">
       {/* Header */}
       <div className="text-center mb-10">
         <h1
           className="text-primary text-[54px] font-semibold"
-          style={{
-            fontFamily: "var(--font-cormorant)",
-          }}
+          style={{ fontFamily: "var(--font-cormorant)" }}
         >
           Our Menu
         </h1>
@@ -149,15 +98,15 @@ const MenuView = () => {
       </div>
 
       {/* Filters Row */}
-      <div className="flex items-center justify-between ">
+      <div className="flex items-center justify-between">
         {/* Category Pills */}
         <div className="flex items-center gap-2">
-          {categories.map((cat) => (
+          {allCategoryOptions.map((cat) => (
             <button
               key={cat}
-              onClick={() => setActiveCategory(cat)}
+              onClick={() => handleCategoryChange(cat)}
               className={`px-4 py-2 rounded-full text-sm font-medium border transition-all duration-200 ${
-                activeCategory === cat
+                activeCategoryName === cat
                   ? "bg-primary text-primary-foreground border-primary"
                   : "bg-[#FBFAF8] text-[#1A1A1A] border-border hover:border-primary hover:text-primary"
               }`}
@@ -175,30 +124,85 @@ const MenuView = () => {
             <input
               type="text"
               placeholder="Search"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              defaultValue={activeSearch}
+              onChange={(e) => handleSearch(e.target.value)}
               className="text-sm text-foreground placeholder:text-muted-foreground bg-transparent outline-none w-full"
             />
           </div>
 
-          {/* Sort Button */}
-          <button className="flex items-center gap-2 bg-primary text-primary-foreground text-sm font-medium px-5 py-2 rounded-full hover:bg-primary/90 transition-colors">
-            Sort
-            <ListFilter className="w-4 h-4" />
-          </button>
+          {/* Sort Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                className={`flex items-center gap-2 text-sm font-medium px-5 py-2 rounded-full transition-colors ${
+                  activeSortBy
+                    ? "bg-primary/10 text-primary border border-primary"
+                    : "bg-primary text-primary-foreground hover:bg-primary/90"
+                }`}
+              >
+                Sort
+                <ListFilter className="w-4 h-4" />
+              </button>
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent align="end" className="w-[200px] rounded-2xl">
+              <DropdownMenuLabel className="flex items-center justify-between px-4 py-3">
+                <span className="text-sm font-semibold text-foreground">
+                  Sort by
+                </span>
+                <button
+                  onClick={() => updateParams({ sortBy: undefined })}
+                  className="text-xs text-muted-foreground hover:text-primary transition-colors"
+                >
+                  Clear
+                </button>
+              </DropdownMenuLabel>
+
+              <DropdownMenuSeparator />
+
+              {SORT_OPTIONS.map((option) => (
+                <DropdownMenuItem
+                  key={option.value}
+                  onClick={() => handleSortChange(option.value)}
+                  className="flex items-center justify-between px-4 py-3 cursor-pointer"
+                >
+                  <span className="text-sm text-foreground">
+                    {option.label}
+                  </span>
+                  {activeSortBy === option.value ? (
+                    <div className="w-5 h-5 rounded-md bg-primary flex items-center justify-center">
+                      <Check className="w-3 h-3 text-white" />
+                    </div>
+                  ) : (
+                    <div className="w-5 h-5 rounded-md border border-border" />
+                  )}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
       {/* Items Grid */}
-      {filtered.length > 0 ? (
+      {isPending ? (
         <div className="grid grid-cols-4 gap-x-6 gap-y-20 pt-10">
-          {filtered.map((item) => (
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div
+              key={i}
+              className="w-full h-[400px] bg-secondary rounded-tl-[34px] rounded-br-[34px] animate-pulse"
+            />
+          ))}
+        </div>
+      ) : initialItems.length > 0 ? (
+        <div className="grid grid-cols-4 gap-x-6 gap-y-20 pt-10">
+          {initialItems.map((item) => (
             <ItemCard
               key={item.id}
+              id={item.id}
               name={item.name}
               description={item.description}
               price={item.price}
-              image={item.image}
+              image={item.imageUrl}
             />
           ))}
         </div>
@@ -208,6 +212,29 @@ const MenuView = () => {
           <p className="text-sm mt-1">
             Try a different category or search term
           </p>
+        </div>
+      )}
+
+      {/* Pagination */}
+      {meta && meta.totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 mt-12">
+          {Array.from({ length: meta.totalPages }).map((_, i) => {
+            const page = i + 1;
+            const isActive = (searchParams.page ?? "1") === String(page);
+            return (
+              <button
+                key={page}
+                onClick={() => updateParams({ page: String(page) })}
+                className={`w-9 h-9 rounded-full text-sm font-medium transition-colors ${
+                  isActive
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-[#FBFAF8] text-foreground border border-border hover:border-primary"
+                }`}
+              >
+                {page}
+              </button>
+            );
+          })}
         </div>
       )}
     </div>

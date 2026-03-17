@@ -6,6 +6,9 @@ import {
 } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { Toaster } from "@/components/ui/sonner";
+import { AuthProvider } from "@/context/authContext";
+import { CartProvider } from "@/context/cartContext";
 
 const cormorantGaramond = Cormorant_Garamond({
   subsets: ["latin"],
@@ -42,7 +45,10 @@ export default function RootLayout({
           playfairDisplay.variable,
         )}
       >
-        {children}
+        <AuthProvider>
+          <CartProvider>{children}</CartProvider>
+        </AuthProvider>
+        <Toaster richColors position="top-right" />
       </body>
     </html>
   );

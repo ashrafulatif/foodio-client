@@ -1,5 +1,6 @@
 "use client";
 
+import { registerUserAction } from "@/actions/auth.action";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -9,18 +10,11 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { RegistrationformSchema } from "@/zod/authFormSchema";
 import { useForm } from "@tanstack/react-form";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { toast } from "sonner";
-import * as z from "zod";
-
-const formSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  email: z.string().email("Please enter a valid email"),
-  address: z.string().min(1, "Address is required"),
-  password: z.string().min(8, "Password should be at least 8 characters"),
-});
 
 export function RegisterForm() {
   const pathname = usePathname();
@@ -35,13 +29,26 @@ export function RegisterForm() {
       password: "",
     },
     validators: {
-      onSubmit: formSchema,
+      onSubmit: RegistrationformSchema,
     },
     onSubmit: async ({ value }) => {
       const toastId = toast.loading("Creating your account...");
       try {
+        //called register action
+        const res = await registerUserAction(value);
+
+        if (res.error) {
+          toast.error(res.error, { id: toastId });
+          return;
+        }
+        //send success toast
+        toast.success("Registration successful", { id: toastId });
+
+        router.push("/login");
       } catch {
-        toast.error("Something went wrong! Try again.", { id: toastId });
+        toast.error("Something went wrong! Try again.", {
+          id: toastId,
+        });
       }
     },
   });
@@ -65,7 +72,7 @@ export function RegisterForm() {
             <button
               type="button"
               onClick={() => router.push("/login")}
-              className={`flex-1 text-center text-sm font-medium py-2 rounded-full transition-all duration-200 ${
+              className={`flex-1 text-center text-sm font-medium py-2 rounded-full transition-all duration-200 cursor-pointer ${
                 !isRegister
                   ? "bg-white text-foreground shadow-sm font-semibold"
                   : "text-muted-foreground hover:text-primary"
@@ -76,7 +83,7 @@ export function RegisterForm() {
             <button
               type="button"
               onClick={() => router.push("/register")}
-              className={`flex-1 text-center text-sm font-medium py-2 rounded-full transition-all duration-200 ${
+              className={`flex-1 text-center text-sm font-medium py-2 rounded-full transition-all duration-200 cursor-pointer ${
                 isRegister
                   ? "bg-white text-foreground shadow-sm font-semibold"
                   : "text-muted-foreground hover:text-primary"
@@ -224,7 +231,7 @@ export function RegisterForm() {
             <Button
               form="register-form"
               type="submit"
-              className="w-full mt-8 h-9 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-semibold"
+              className="w-full mt-8 h-9 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-semibold cursor-pointer"
             >
               Create Account
             </Button>

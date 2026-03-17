@@ -1,4 +1,4 @@
-import CategorySection from "@/components/modules/HomePage/CategorySection";
+import CategorySection from "@/components/modules/HomePage/CategorySection/CategorySection";
 import Hero from "@/components/modules/HomePage/Hero";
 
 const CommonLayoutPage = () => {

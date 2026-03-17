@@ -2,9 +2,19 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { ShoppingCart } from "lucide-react";
-import { Button } from "../ui/button";
+import { usePathname, useRouter } from "next/navigation";
+import {  User, LogOut, ClipboardList } from "lucide-react";
+import { useAuth } from "@/context/authContext";
+import { logoutAction } from "@/actions/auth.action";
+import { useTransition } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import CartDropdown from "../modules/Cart/CartDropdown";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -14,6 +24,17 @@ const navLinks = [
 
 const Navbar = () => {
   const pathname = usePathname();
+  const { isLoggedIn, setIsLoggedIn } = useAuth();
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
+  const handleLogout = () => {
+    startTransition(async () => {
+      await logoutAction();
+      setIsLoggedIn(false);
+      router.push("/login");
+    });
+  };
 
   return (
     <div className="w-full bg-transparent">
@@ -23,7 +44,7 @@ const Navbar = () => {
           <Image src="/Logo.svg" alt="Logo" fill className="object-contain" />
         </div>
 
-        {/* Navigation Links */}
+        {/* Nav Links */}
         <nav className="flex items-center gap-2">
           {navLinks.map(({ href, label }) => {
             const isActive = pathname === href;
@@ -43,22 +64,53 @@ const Navbar = () => {
           })}
         </nav>
 
-        {/* Right Section: Cart & Sign In */}
+        {/* Right Section */}
         <div className="flex items-center gap-3">
-          {/* Shopping Cart — outlined pill */}
-          <div className="flex items-center gap-2 border border-primary rounded-full px-3 py-1.5 cursor-pointer hover:border-gray-500 transition-colors">
-            <ShoppingCart className="w-4 h-4 text-primary font-semibold" />
-            <span className="text-sm font-semibold text-primary">2</span>
-          </div>
+          {/* Cart */}
+          <CartDropdown />
 
-          {/* Sign In Button */}
-          <Link
-            href={"/login"}
-            className="bg-primary hover:bg-[#234f3c] text-white rounded-full px-3 py-1.5 text-sm font-semibold flex items-center gap-2"
-          >
-            Sign in
-            <span className="text-base">→</span>
-          </Link>
+          {isLoggedIn ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="w-9 h-9 rounded-full bg-primary flex items-center justify-center hover:bg-primary/90 transition-colors">
+                  <User className="w-4 h-4 text-white" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                className="w-45 rounded-2xl mt-2"
+              >
+                <DropdownMenuItem asChild>
+                  <Link
+                    href="/orders"
+                    className="flex items-center gap-2 px-4 py-2.5 cursor-pointer"
+                  >
+                    <ClipboardList className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm">My Orders</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={handleLogout}
+                  disabled={isPending}
+                  className="flex items-center gap-2 px-4 py-2.5 cursor-pointer text-red-500 focus:text-red-500"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span className="text-sm">
+                    {isPending ? "Logging out..." : "Logout"}
+                  </span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Link
+              href="/login"
+              className="bg-primary hover:bg-[#234f3c] text-white rounded-full px-3 py-1.5 text-sm font-semibold flex items-center gap-2"
+            >
+              Sign in
+              <span className="text-base">→</span>
+            </Link>
+          )}
         </div>
       </div>
     </div>
