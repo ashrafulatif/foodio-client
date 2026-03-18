@@ -7,7 +7,7 @@ import {
   isCustomerProtectedRoute,
   isTokenExpired,
   UserRole,
-} from "./src/lib/authUtils";
+} from "./lib/authUtils";
 
 export async function proxy(request: NextRequest) {
   try {
