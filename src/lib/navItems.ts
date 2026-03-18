@@ -6,7 +6,7 @@ export const getCommonNavItems = (): NavSection[] => {
       items: [
         {
           title: "Menu Items",
-          href: "/dashboard/menu-management",
+          href: "/dashboard",
           icon: "Menu",
         },
         {

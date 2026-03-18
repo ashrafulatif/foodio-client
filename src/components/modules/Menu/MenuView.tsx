@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import ItemCard from "@/components/ui/ItemCard";
 import { MenuClientProps, SearchParams } from "@/types";
+import PaginationControls from "@/components/ui/Pagination-Control";
 
 const SORT_OPTIONS = [
   { label: "Availability", value: "true" },
@@ -83,24 +84,24 @@ const MenuView = ({
       : (categories.find((c) => c.id === activeCategory)?.name ?? "All");
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-6 py-6">
+    <div className="w-full max-w-7xl mx-auto px-4 md:px-6 pt-20 pb-6 flex flex-col min-h-screen">
       {/* Header */}
       <div className="text-center mb-10">
         <h1
-          className="text-primary text-[54px] font-semibold"
+          className="text-primary text-[40px] md:text-[54px] font-semibold"
           style={{ fontFamily: "var(--font-cormorant)" }}
         >
           Our Menu
         </h1>
-        <p className="text-[#2D2D2D] text-[18px] font-medium">
+        <p className="text-[#2D2D2D] text-[16px] md:text-[18px] font-medium">
           Discover our selection of premium dishes, crafted with passion.
         </p>
       </div>
 
-      {/* Filters Row */}
-      <div className="flex items-center justify-between">
-        {/* Category Pills */}
-        <div className="flex items-center gap-2">
+      {/* Filters — stacks vertically on mobile, row on desktop */}
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
+        {/* Category Pills — wraps on mobile */}
+        <div className="flex flex-wrap items-center gap-2">
           {allCategoryOptions.map((cat) => (
             <button
               key={cat}
@@ -119,7 +120,7 @@ const MenuView = ({
         {/* Search + Sort */}
         <div className="flex items-center gap-3">
           {/* Search */}
-          <div className="flex items-center gap-2 border border-border rounded-full px-4 py-2 w-[310px] bg-[#FBFAF8]">
+          <div className="flex items-center gap-2 border border-border rounded-full px-4 py-2 flex-1 md:w-[310px] md:flex-none bg-[#FBFAF8]">
             <Search className="w-4 h-4 text-muted-foreground shrink-0" />
             <input
               type="text"
@@ -134,7 +135,7 @@ const MenuView = ({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
-                className={`flex items-center gap-2 text-sm font-medium px-5 py-2 rounded-full transition-colors ${
+                className={`flex items-center gap-2 text-sm font-medium px-5 py-2 rounded-full transition-colors shrink-0 ${
                   activeSortBy
                     ? "bg-primary/10 text-primary border border-primary"
                     : "bg-primary text-primary-foreground hover:bg-primary/90"
@@ -183,58 +184,44 @@ const MenuView = ({
         </div>
       </div>
 
-      {/* Items Grid */}
-      {isPending ? (
-        <div className="grid grid-cols-4 gap-x-6 gap-y-20 pt-10">
-          {Array.from({ length: 8 }).map((_, i) => (
-            <div
-              key={i}
-              className="w-full h-[400px] bg-secondary rounded-tl-[34px] rounded-br-[34px] animate-pulse"
-            />
-          ))}
-        </div>
-      ) : initialItems.length > 0 ? (
-        <div className="grid grid-cols-4 gap-x-6 gap-y-20 pt-10">
-          {initialItems.map((item) => (
-            <ItemCard
-              key={item.id}
-              id={item.id}
-              name={item.name}
-              description={item.description}
-              price={item.price}
-              image={item.imageUrl}
-            />
-          ))}
-        </div>
-      ) : (
-        <div className="flex flex-col items-center justify-center py-24 text-muted-foreground">
-          <p className="text-lg font-medium">No items found</p>
-          <p className="text-sm mt-1">
-            Try a different category or search term
-          </p>
-        </div>
-      )}
+      {/* Items Grid  */}
+      <div className="flex-1">
+        {isPending ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-20 pt-10">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div
+                key={i}
+                className="w-full h-75 bg-secondary rounded-tl-[34px] rounded-br-[34px] animate-pulse"
+              />
+            ))}
+          </div>
+        ) : initialItems.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-10 gap-y-20 pt-10">
+            {initialItems.map((item) => (
+              <ItemCard
+                key={item.id}
+                id={item.id}
+                name={item.name}
+                description={item.description}
+                price={item.price}
+                image={item.imageUrl}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-24 text-muted-foreground">
+            <p className="text-lg font-medium">No items found</p>
+            <p className="text-sm mt-1">
+              Try a different category or search term
+            </p>
+          </div>
+        )}
+      </div>
 
       {/* Pagination */}
-      {meta && meta.totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2 mt-12">
-          {Array.from({ length: meta.totalPages }).map((_, i) => {
-            const page = i + 1;
-            const isActive = (searchParams.page ?? "1") === String(page);
-            return (
-              <button
-                key={page}
-                onClick={() => updateParams({ page: String(page) })}
-                className={`w-9 h-9 rounded-full text-sm font-medium transition-colors ${
-                  isActive
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-[#FBFAF8] text-foreground border border-border hover:border-primary"
-                }`}
-              >
-                {page}
-              </button>
-            );
-          })}
+      {meta && (
+        <div className="mt-30">
+          <PaginationControls meta={meta} pageParamKey="page" />
         </div>
       )}
     </div>

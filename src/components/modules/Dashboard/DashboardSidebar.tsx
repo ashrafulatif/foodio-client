@@ -5,7 +5,7 @@ import { getCommonNavItems } from "@/lib/navItems";
 
 const DashboardSidebar = async () => {
   const navItems: NavSection[] = getCommonNavItems();
-  const dashboardHome = "/dashboard";
+  const dashboardHome = "/";
 
   return (
     <DashboardSidebarContent

@@ -38,7 +38,6 @@ const getMenuItem = async (params?: IMenueItemParamsTypes) => {
     //fetch posts
     const result = await fetch(url.toString(), {
       cache: "no-store",
-      next: { tags: ["menu-items"] },
     });
 
     const data = await result.json();
@@ -46,6 +45,8 @@ const getMenuItem = async (params?: IMenueItemParamsTypes) => {
     if (!data.success) {
       return {
         message: "Error fetching data",
+        data: null,
+        meta: null,
       };
     }
     return {
@@ -92,7 +93,8 @@ const createMenuItem = async (payload: ICreateMenuItemData) => {
 
     if (!data.success) {
       return {
-        message: data.message,
+        error: data.message,
+        data: null,
       };
     }
     return {
@@ -127,7 +129,8 @@ const updateMenuItem = async (id: string, payload: IUpdateMenuItemData) => {
 
     if (!data.success) {
       return {
-        message: data.message,
+        error: data.message,
+        data: null,
       };
     }
     return {
@@ -159,7 +162,8 @@ const deleteMenuItem = async (id: string) => {
 
     if (!data.success) {
       return {
-        message: data.message,
+        error: data.message,
+        data: null,
       };
     }
     return {

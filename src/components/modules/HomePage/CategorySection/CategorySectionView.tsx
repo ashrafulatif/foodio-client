@@ -57,7 +57,7 @@ const CategorySectionView = ({ categories }: { categories: Category[] }) => {
   }, [activeCategory]);
 
   return (
-    <section className="w-full max-w-360 mx-auto px-6 py-16">
+    <section className="w-full max-w-327.5 mx-auto px-6 py-16">
       {/* Header */}
       <div className="text-center mb-10">
         <h2
@@ -79,7 +79,7 @@ const CategorySectionView = ({ categories }: { categories: Category[] }) => {
             onClick={() => setActiveCategory(category.id)}
             className={`flex flex-col items-center gap-3 w-53.75 py-6 rounded-tl-[20px] rounded-br-[20px] transition-all duration-200 ${
               activeCategory === category.id
-                ? "bg-secondary border-transparent"
+                ? "bg-secondary border-transparent shadow-[0_14px_32px_rgba(0,0,0,0.1)]"
                 : "bg-[#FBFAF8] border-border hover:bg-secondary/40"
             }`}
           >
@@ -101,7 +101,7 @@ const CategorySectionView = ({ categories }: { categories: Category[] }) => {
           Array.from({ length: 4 }).map((_, i) => (
             <div
               key={i}
-              className="w-75 h-100 bg-secondary rounded-tl-[34px] rounded-br-[34px] animate-pulse"
+              className="w-70 h-80 bg-secondary rounded-tl-[34px] rounded-br-[34px] animate-pulse"
             />
           ))
         ) : menuItems.length > 0 ? (

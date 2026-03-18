@@ -13,16 +13,21 @@ import { CartProvider } from "@/context/cartContext";
 const cormorantGaramond = Cormorant_Garamond({
   subsets: ["latin"],
   variable: "--font-cormorant",
+  weight: ["400", "600", "700"],
+  style: ["normal", "italic"],
 });
 
 const manrope = Manrope({
   subsets: ["latin"],
   variable: "--font-manrope",
+  weight: ["400", "500", "600", "700"],
 });
 
 const playfairDisplay = Playfair_Display({
   subsets: ["latin"],
   variable: "--font-playfair-display",
+  weight: ["400", "700"],
+  style: ["normal", "italic"],
 });
 
 export const metadata: Metadata = {

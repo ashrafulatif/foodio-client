@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/table";
 import { OrderDetailsModal } from "./OrderDetailsModal";
 import { OrderStatusDropdown } from "./OrderStatusDropdown";
+import PaginationControls from "@/components/ui/Pagination-Control";
 
 export type OrderStatus = "PENDING" | "PREPARING" | "READY" | "COMPLETED";
 
@@ -31,6 +32,13 @@ export interface ApiOrder {
   items: OrderItem[];
 }
 
+interface Meta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
 const formatDate = (dateStr: string) =>
   new Date(dateStr).toLocaleDateString("en-US", {
     month: "short",
@@ -40,17 +48,28 @@ const formatDate = (dateStr: string) =>
     hour12: true,
   });
 
-const OrderManagement = ({ orders: initialOrders }: { orders: ApiOrder[] }) => {
-  const [orders, setOrders] = useState<ApiOrder[]>(initialOrders);
+const OrderManagement = ({
+  orders,
+  meta,
+}: {
+  orders: ApiOrder[];
+  meta?: Meta;
+}) => {
+  const [localOrders, setLocalOrders] = useState<ApiOrder[]>(orders);
   const [selectedOrder, setSelectedOrder] = useState<ApiOrder | null>(null);
 
   const handleStatusChange = (id: string, status: OrderStatus) => {
-    setOrders((prev) => prev.map((o) => (o.id === id ? { ...o, status } : o)));
+    setLocalOrders((prev) =>
+      prev.map((o) => (o.id === id ? { ...o, status } : o)),
+    );
   };
 
   return (
-    <div className="w-full px-6 py-6">
-      <h1 className="text-2xl font-bold text-foreground mb-4">
+    <div className="w-full px-6 ">
+      <h1
+        className="text-[26px] font-semibold text-primary mb-4"
+        style={{ fontFamily: "var(--font-cormorant)" }}
+      >
         Order Management
       </h1>
       <div className="border-b border-border mb-6" />
@@ -68,7 +87,7 @@ const OrderManagement = ({ orders: initialOrders }: { orders: ApiOrder[] }) => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {orders.length === 0 ? (
+            {localOrders.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={6}
@@ -78,7 +97,7 @@ const OrderManagement = ({ orders: initialOrders }: { orders: ApiOrder[] }) => {
                 </TableCell>
               </TableRow>
             ) : (
-              orders.map((order) => (
+              localOrders.map((order) => (
                 <TableRow key={order.id}>
                   <TableCell className="font-medium">
                     {order.id.slice(0, 8)}...
@@ -107,6 +126,8 @@ const OrderManagement = ({ orders: initialOrders }: { orders: ApiOrder[] }) => {
           </TableBody>
         </Table>
       </div>
+
+      {meta && <PaginationControls meta={meta} pageParamKey="page" />}
 
       <OrderDetailsModal
         order={selectedOrder}

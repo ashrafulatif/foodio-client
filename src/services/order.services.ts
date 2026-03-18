@@ -46,41 +46,31 @@ const createOrder = async (payload: CreateOrderPayload) => {
 
 const getAllOrders = async (params?: { page?: string; limit?: string }) => {
   try {
-    const cookieStorage = await cookies();
-    //url
     const url = new URL(buildApiUrl(API_ENDPOINTS.order.getAllOrders));
 
-    if (params?.page) {
-      url.searchParams.set("page", params.page);
-    }
-    if (params?.limit) {
-      url.searchParams.set("limit", params.limit);
-    }
+    if (params?.page) url.searchParams.set("page", params.page);
+
+    if (params?.limit) url.searchParams.set("limit", params.limit);
+
+    const cookieStorage = await cookies();
 
     const result = await fetch(url.toString(), {
       cache: "no-store",
-      next: { tags: ["orders"] },
-      headers: {
-        Cookie: cookieStorage.toString(),
-      },
+      headers: { Cookie: cookieStorage.toString() },
     });
 
     const data = await result.json();
 
     if (!data.success) {
       return {
-        message: data.message,
+        error: data.message,
+        data: null,
+        meta: null,
       };
     }
-    return {
-      message: data.message,
-      data: data.data,
-    };
+    return { error: null, data: data.data, meta: data.meta };
   } catch {
-    return {
-      data: null,
-      error: "Something went wrong",
-    };
+    return { error: "Something went wrong", data: null, meta: null };
   }
 };
 

@@ -24,11 +24,15 @@ const ItemCard = ({
   image = "/image1.svg",
 }: ItemCardProps) => {
   const [modalOpen, setModalOpen] = useState(false);
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, role } = useAuth();
 
   const handleAddToCart = () => {
     if (!isLoggedIn) {
       toast.error("Please sign in to add items to cart");
+      return;
+    }
+    if (role !== "CUSTOMER") {
+      toast.error("Only customers can add items to cart");
       return;
     }
     setModalOpen(true);
@@ -36,7 +40,7 @@ const ItemCard = ({
 
   return (
     <>
-      <div className="relative w-[290px] h-[380px]">
+      <div className="relative w-[290px] h-[380px] mx-auto">
         {/* Card Body */}
         <div className="absolute bottom-0 top-30 left-0 w-full h-[340px] bg-secondary rounded-tr-[34px] rounded-bl-[34px]">
           {/* Text Content */}

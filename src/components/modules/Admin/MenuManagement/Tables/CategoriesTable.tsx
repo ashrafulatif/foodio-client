@@ -25,11 +25,10 @@ interface CategoriesTableProps {
 }
 
 export const CategoriesTable = ({
-  categories: initialCategories,
+  categories,
   addOpen,
   setAddOpen,
 }: CategoriesTableProps) => {
-  const [categories, setCategories] = useState<Category[]>(initialCategories);
   const [editTarget, setEditTarget] = useState<Category | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Category | null>(null);
   const [name, setName] = useState("");
@@ -43,7 +42,6 @@ export const CategoriesTable = ({
         toast.error(result.error || "Failed to create category");
         return;
       }
-      setCategories((prev) => [...prev, result.data]);
       toast.success("Category created");
       setAddOpen(false);
       setName("");
@@ -58,11 +56,6 @@ export const CategoriesTable = ({
         toast.error(result.error || "Failed to update category");
         return;
       }
-      setCategories((prev) =>
-        prev.map((c) =>
-          c.id === editTarget.id ? { ...c, name: name.trim() } : c,
-        ),
-      );
       toast.success("Category updated");
       setEditTarget(null);
       setName("");
@@ -77,7 +70,6 @@ export const CategoriesTable = ({
         toast.error(result.error || "Failed to delete category");
         return;
       }
-      setCategories((prev) => prev.filter((c) => c.id !== deleteTarget.id));
       toast.success("Category deleted");
       setDeleteTarget(null);
     });
@@ -139,7 +131,7 @@ export const CategoriesTable = ({
           if (!open) setName("");
         }}
       >
-        <DialogContent className="bg-[#FBFAF8] rounded-[12px] max-w-sm border-none shadow-lg">
+        <DialogContent className="bg-[#FBFAF8] rounded-3xl max-w-sm border-none shadow-lg">
           <DialogHeader>
             <DialogTitle className="text-base font-bold">
               Add Category
@@ -150,10 +142,10 @@ export const CategoriesTable = ({
             <Input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="rounded-[12px] bg-white border-border h-10"
+              className="rounded-xl bg-white border-border h-10"
             />
           </div>
-          <div className="flex justify-end mt-2">
+          <div className="flex justify-end mt-4">
             <Button
               onClick={handleAdd}
               disabled={isPending || !name.trim()}
@@ -175,7 +167,7 @@ export const CategoriesTable = ({
           }
         }}
       >
-        <DialogContent className="bg-[#FBFAF8] rounded-[12px] max-w-sm border-none shadow-lg">
+        <DialogContent className="bg-[#FBFAF8] rounded-3xl max-w-sm border-none shadow-lg">
           <DialogHeader>
             <DialogTitle className="text-base font-bold">
               Edit Category

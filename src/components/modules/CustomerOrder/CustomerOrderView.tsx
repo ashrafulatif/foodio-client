@@ -61,7 +61,7 @@ const CustomerOrderView = ({ orders }: { orders: ApiOrder[] }) => {
   const mappedOrders = orders.map(mapApiOrder);
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-10 py-12">
+    <div className="w-full max-w-7xl mx-auto px-10 py-20 ">
       {/* Page Title */}
       <h1
         className="text-primary text-3xl font-semibold mb-8"

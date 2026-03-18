@@ -1,6 +1,6 @@
 "use client";
 
-import { loginUserAction } from "@/actions/auth.action";
+import { getAuthStateAction, loginUserAction } from "@/actions/auth.action";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -20,7 +20,7 @@ import { toast } from "sonner";
 export function LoginForm() {
   const router = useRouter();
   const pathname = usePathname();
-  const { setIsLoggedIn } = useAuth();
+  const { setIsLoggedIn, setRole } = useAuth();
   const isRegister = pathname === "/register";
 
   const form = useForm({
@@ -40,9 +40,19 @@ export function LoginForm() {
           toast.error(res.error, { id: toastId });
           return;
         }
+        //fetch rolefrom token
+        const authState = await getAuthStateAction();
         setIsLoggedIn(true);
+        setRole(authState.role);
+
         toast.success("Signed in successfully!", { id: toastId });
-        router.push("/");
+
+        // Redirect based on role
+        if (authState.role === "ADMIN") {
+          router.push("/dashboard");
+        } else {
+          router.push("/");
+        }
       } catch {
         toast.error("Invalid email or password.", { id: toastId });
       }
@@ -51,7 +61,7 @@ export function LoginForm() {
 
   return (
     <div className="min-h-screen flex items-center justify-center">
-      <Card className="w-full max-w-md bg-[#FBFAF8] border-border shadow-sm rounded-3xl px-8 py-10">
+      <Card className="w-full max-w-md bg-[#FBFAF8] border-border shadow-sm rounded-[12px] px-8 py-10">
         <CardContent className="p-0">
           {/* Logo */}
           <div className="flex flex-col items-center mb-6">
@@ -119,7 +129,7 @@ export function LoginForm() {
                         onChange={(e) => field.handleChange(e.target.value)}
                         aria-invalid={isInvalid}
                         placeholder="name@example.com"
-                        className="rounded-[12px] border-border bg-white h-9 px-4 text-sm"
+                        className="rounded-[6px] border-border bg-white h-9 px-4 text-sm"
                       />
                       {isInvalid && (
                         <FieldError errors={field.state.meta.errors} />
@@ -152,7 +162,7 @@ export function LoginForm() {
                         onChange={(e) => field.handleChange(e.target.value)}
                         aria-invalid={isInvalid}
                         placeholder=""
-                        className="rounded-[12px] border-border bg-white h-9 px-4 text-sm"
+                        className="rounded-[6px] border-border bg-white h-9 px-4 text-sm"
                       />
                       {isInvalid && (
                         <FieldError errors={field.state.meta.errors} />

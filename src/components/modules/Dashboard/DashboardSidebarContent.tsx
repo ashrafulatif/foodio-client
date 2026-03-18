@@ -24,13 +24,14 @@ export const DashboardSidebarContent = ({
 }: DashboardSidebarContentProps) => {
   const pathname = usePathname();
   const router = useRouter();
-  const { setIsLoggedIn } = useAuth();
+  const { setIsLoggedIn, setRole } = useAuth();
   const [isPending, startTransition] = useTransition();
 
   const handleLogout = () => {
     startTransition(async () => {
       await logoutAction();
       setIsLoggedIn(false);
+      setRole(null);
       router.push("/login");
     });
   };

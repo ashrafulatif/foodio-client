@@ -1,5 +1,6 @@
 import { API_ENDPOINTS, buildApiUrl } from "@/apiInstance";
 import { cookies } from "next/headers";
+import { meta } from "zod/v4/core";
 
 const getAllCategories = async (params?: { page?: string; limit?: string }) => {
   try {
@@ -15,7 +16,6 @@ const getAllCategories = async (params?: { page?: string; limit?: string }) => {
 
     const result = await fetch(url.toString(), {
       cache: "no-store",
-      next: { tags: ["categories"] },
     });
 
     const data = await result.json();
@@ -25,9 +25,11 @@ const getAllCategories = async (params?: { page?: string; limit?: string }) => {
         message: data.message,
       };
     }
+    // console.log("service: ", data);
     return {
       message: data.message,
       data: data.data,
+      meta: data.meta,
     };
   } catch {
     return {

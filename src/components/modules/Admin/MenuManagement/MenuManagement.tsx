@@ -3,9 +3,10 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { MenuItemsTable } from "./MenuItemsTable";
-import { CategoriesTable } from "./CategoriesTable";
+import { MenuItemsTable } from "./Tables/MenuItemsTable";
+import { CategoriesTable } from "./Tables/CategoriesTable";
 import { Category } from "@/types";
+import PaginationControls from "@/components/ui/Pagination-Control";
 
 export interface MenuItem {
   id: string;
@@ -15,9 +16,18 @@ export interface MenuItem {
   category: { name: string };
 }
 
+interface Meta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
 export interface MenuManagementClientProps {
   categories: Category[];
   menuItems: MenuItem[];
+  menuItemsMeta?: Meta;
+  categoriesMeta?: Meta;
 }
 
 type Tab = "menuItems" | "categories";
@@ -25,16 +35,17 @@ type Tab = "menuItems" | "categories";
 const MenuManagement = ({
   categories,
   menuItems,
+  menuItemsMeta,
+  categoriesMeta,
 }: MenuManagementClientProps) => {
   const [activeTab, setActiveTab] = useState<Tab>("menuItems");
   const [addCategoryOpen, setAddCategoryOpen] = useState(false);
   const [addMenuItemOpen, setAddMenuItemOpen] = useState(false);
 
+  // console.log("from  menu man client: ", menuItemsMeta);
+
   return (
     <div className="w-full px-2">
-      <h1 className="text-2xl font-bold text-foreground mb-4">Menu Items</h1>
-      <div className="border-b border-border mb-6" />
-
       <div className="flex items-center justify-between mb-6">
         {/* Tabs */}
         <div className="flex items-center gap-2 bg-[#F5F3EE] rounded-full p-1">
@@ -74,18 +85,31 @@ const MenuManagement = ({
       </div>
 
       {activeTab === "menuItems" ? (
-        <MenuItemsTable
-          menuItems={menuItems}
-          categories={categories}
-          addOpen={addMenuItemOpen}
-          setAddOpen={setAddMenuItemOpen}
-        />
+        <>
+          <MenuItemsTable
+            menuItems={menuItems}
+            categories={categories}
+            addOpen={addMenuItemOpen}
+            setAddOpen={setAddMenuItemOpen}
+          />
+          {menuItemsMeta && (
+            <PaginationControls meta={menuItemsMeta} pageParamKey="page" />
+          )}
+        </>
       ) : (
-        <CategoriesTable
-          categories={categories}
-          addOpen={addCategoryOpen}
-          setAddOpen={setAddCategoryOpen}
-        />
+        <>
+          <CategoriesTable
+            categories={categories}
+            addOpen={addCategoryOpen}
+            setAddOpen={setAddCategoryOpen}
+          />
+          {categoriesMeta && (
+            <PaginationControls
+              meta={categoriesMeta}
+              pageParamKey="categoryPage"
+            />
+          )}
+        </>
       )}
     </div>
   );

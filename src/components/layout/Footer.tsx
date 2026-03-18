@@ -3,10 +3,13 @@ import Link from "next/link";
 const Footer = () => {
   return (
     <footer className="w-full border-t border-border mt-36">
-      <div className="max-w-360 h-23.25 mx-auto px-20 py-5 flex items-center justify-between">
+      <div className="max-w-360 mx-auto px-6 md:px-20 py-5 flex flex-col md:flex-row items-center justify-between gap-4">
         {/* Left — Logo + copyright */}
-        <div className="flex items-center gap-2">
-          <span className="text-primary font-bold text-[20px] tracking-tight">
+        <div className="flex flex-col md:flex-row items-center gap-1 md:gap-2">
+          <span
+            className="text-primary font-bold text-[20px] tracking-tight"
+            style={{ fontFamily: "var(--font-cormorant)" }}
+          >
             Foodio.
           </span>
           <span className="text-muted-foreground text-[14px]">
@@ -15,7 +18,7 @@ const Footer = () => {
         </div>
 
         {/* Right — Links */}
-        <div className="flex items-center gap-8">
+        <div className="flex items-center gap-6 md:gap-8">
           <Link
             href="/privacy"
             className="text-muted-foreground text-[14px] hover:text-primary transition-colors"

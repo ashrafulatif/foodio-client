@@ -55,7 +55,7 @@ export function RegisterForm() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <Card className="w-full max-w-md bg-[#FBFAF8] border-border shadow-sm rounded-3xl px-8 py-10">
+      <Card className="w-full max-w-md bg-[#FBFAF8] border-border shadow-sm rounded-[12px] px-8 py-10">
         <CardContent className="p-0">
           {/* Logo */}
           <div className="flex flex-col items-center mb-6">
